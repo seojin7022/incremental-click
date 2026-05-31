@@ -27,8 +27,8 @@ type Node = {
     Y: float32
 }
 
-type GameState = 
-    member _.Points = 0.0
-    member _.ClickPower = 1.0
-    member _.Passive = 0.0
-    member _.UnlockedIds = Set.empty
+type GameState () = 
+    member val Points = 0.0 with get, set
+    member val ClickPower = 1.0 with get, set
+    member val Passive = 0.0 with get, set
+    member val UnlockedIds = Set.empty with get, set

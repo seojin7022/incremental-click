@@ -10,3 +10,7 @@ let HEIGHT = 800
 let TITLE = "Incremental Click"
 [<Literal>]
 let FPS = 60
+[<Literal>]
+let TreeX = 520
+[<Literal>]
+let TreeY = 60

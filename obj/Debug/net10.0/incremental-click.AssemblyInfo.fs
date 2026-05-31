@@ -10,7 +10,7 @@ open System.Reflection
 [<assembly: System.Reflection.AssemblyCompanyAttribute("incremental-click")>]
 [<assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")>]
 [<assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")>]
-[<assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cffa52802faf79b0b3f52cead047170a61b2a751")>]
+[<assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d3216323eb0a9490b301249932d6f3fc10a4c3bd")>]
 [<assembly: System.Reflection.AssemblyProductAttribute("incremental-click")>]
 [<assembly: System.Reflection.AssemblyTitleAttribute("incremental-click")>]
 [<assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")>]

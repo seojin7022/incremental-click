@@ -33,3 +33,4 @@
 /Users/yunseojin/Documents/incremental-click/obj/Debug/net10.0/incremental-click.pdb
 /Users/yunseojin/Documents/incremental-click/obj/Debug/net10.0/incremental-click.genruntimeconfig.cache
 /Users/yunseojin/Documents/incremental-click/obj/Debug/net10.0/ref/incremental-click.dll
+/Users/yunseojin/Documents/incremental-click/obj/Debug/net10.0/incremental-click.sourcelink.json
