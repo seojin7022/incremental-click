@@ -6,6 +6,9 @@
 # dotenv files
 .env
 
+#save datas
+save.json
+
 # User-specific files
 *.rsuser
 *.suo

@@ -8,7 +8,7 @@ type Effect = {
 }
 
 module Effect =
-    let empty = {AddClick = 0.0; AddPassive = 0.0; MulClick = 0.0; MulPassive = 0.0}
+    let empty = {AddClick = 0.0; AddPassive = 0.0; MulClick = 1.0; MulPassive = 1.0}
     
     let addClick v = {empty with AddClick=v}
     let addPassive v = {empty with AddPassive=v}
@@ -28,7 +28,7 @@ type Node = {
 }
 
 type GameState () = 
-    member val Points = 0.0 with get, set
-    member val ClickPower = 1.0 with get, set
-    member val Passive = 0.0 with get, set
-    member val UnlockedIds = Set.empty with get, set
+    member val Points: float = 0.0 with get, set
+    member val ClickPower: float = 1.0 with get, set
+    member val Passive: float = 0.0 with get, set
+    member val UnlockedIds: Set<string> = Set.empty with get, set

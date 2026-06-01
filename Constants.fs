@@ -11,6 +11,12 @@ let TITLE = "Incremental Click"
 [<Literal>]
 let FPS = 60
 [<Literal>]
-let TreeX = 520
+let TREE_X = 520
 [<Literal>]
-let TreeY = 60
+let TREE_Y = 60
+[<Literal>]
+let TREE_W = WIDTH-TREE_X
+[<Literal>]
+let TREE_H = HEIGHT-TREE_Y
+[<Literal>]
+let NODE_R : float32 = 38f
