@@ -61,9 +61,70 @@ let nodeUnderMouse (state: GameState) (world: Vector2) : Node option =
         else
             false)
 
+let textSpacing (size: float32) =
+    max 1f (size * 0.05f)
+
+let measureText (font: Font) (text: string) (size: float32) =
+    Raylib.MeasureTextEx(font, text, size, textSpacing size).X
+
+let drawText (font: Font) (text: string) (x: float32) (y: float32) (size: float32) (color: Color) =
+    Raylib.DrawTextEx(font, text, Vector2(x, y), size, textSpacing size, color)
+
+let drawCenteredText (font: Font) (text: string) (centerX: float32) (y: float32) (size: float32) (color: Color) =
+    let width = measureText font text size
+    drawText font text (centerX - width / 2f) y size color
+
+let ellipsizeText (font: Font) (text: string) (size: float32) (maxWidth: float32) =
+    if measureText font text size <= maxWidth then
+        text
+    else
+        let ellipsis = "..."
+        let mutable endIndex = text.Length
+        while endIndex > 0
+              && measureText font (text.Substring(0, endIndex) + ellipsis) size > maxWidth do
+            endIndex <- endIndex - 1
+        if endIndex <= 0 then ellipsis else text.Substring(0, endIndex) + ellipsis
+
+let fitOneLine (font: Font) (text: string) (maxWidth: float32) (preferredSize: float32) (minSize: float32) =
+    let mutable size = preferredSize
+    while size > minSize && measureText font text size > maxWidth do
+        size <- size - 1f
+    ellipsizeText font text size maxWidth, size
+
+let drawNodeLabel (font: Font) (state: GameState) (n: Node) =
+    let unlocked = state.UnlockedIds.Contains n.Id
+    let available = isAvailable state n
+    let canAfford = available && state.Points >= n.Cost
+    let maxLabelWidth = 118f
+    let name, nameSize = fitOneLine font n.Name maxLabelWidth 13f 9f
+    let cost = if unlocked then "" else sprintf "%s pts" (formatNum n.Cost)
+    let costSize = 10f
+    let nameWidth = measureText font name nameSize
+    let costWidth = if unlocked then 0f else measureText font cost costSize
+    let labelWidth = max 72f (min 132f (max nameWidth costWidth + 14f))
+    let labelHeight = if unlocked then 23f else 38f
+    let labelX = n.X - labelWidth / 2f
+    let labelY = n.Y + NODE_R + 6f
+    let fill =
+        if unlocked then Color(22, 70, 42, 235)
+        elif canAfford then Color(90, 74, 26, 235)
+        elif available then Color(62, 53, 34, 235)
+        else Color(38, 40, 54, 235)
+    let outline =
+        if unlocked then Color(96, 220, 132, 230)
+        elif canAfford then Color(255, 224, 120, 230)
+        else Color(96, 98, 116, 220)
+
+    Raylib.DrawRectangleRounded(Rectangle(labelX, labelY, labelWidth, labelHeight), 0.25f, 8, fill)
+    Raylib.DrawRectangleRoundedLinesEx(Rectangle(labelX, labelY, labelWidth, labelHeight), 0.25f, 8, 1.2f, outline)
+    drawCenteredText font name n.X (labelY + 4f) nameSize Color.White
+    if not unlocked then
+        drawCenteredText font cost n.X (labelY + 21f) costSize (Color(218, 222, 232, 255))
+
 [<EntryPoint>]
 let main _ = 
     Render.init ()
+    let uiFont = Render.loadUiFont ()
     let state = GameState ()
     let mutable camTarget = Vector2(400f, 0f)
     let mutable camZoom = 0.7f
@@ -158,16 +219,10 @@ let main _ =
         Raylib.ClearBackground(Color(20, 22, 32, 255))
 
         Raylib.DrawRectangle(0, 0, WIDTH, TREE_Y, Color(12, 14, 22, 255))
-        Raylib.DrawText(sprintf "Points: %s" (formatNum state.Points), 20, 16, 30, Color.White)
-        Raylib.DrawText(
-            sprintf "Click Power: %s" (formatNum state.ClickPower),
-            440, 8, 18, Color.Yellow)
-        Raylib.DrawText(
-            sprintf "Passive: %s /s" (formatNum state.Passive),
-            440, 32, 18, Color.SkyBlue)
-        Raylib.DrawText(
-            sprintf "Unlocks: %d / %d" state.UnlockedIds.Count (List.length allNodes),
-            760, 20, 18, Color.LightGray)
+        drawText uiFont.Font (sprintf "Points: %s" (formatNum state.Points)) 20f 13f 30f Color.White
+        drawText uiFont.Font (sprintf "Click Power: %s" (formatNum state.ClickPower)) 440f 7f 18f Color.Yellow
+        drawText uiFont.Font (sprintf "Passive: %s /s" (formatNum state.Passive)) 440f 32f 18f Color.SkyBlue
+        drawText uiFont.Font (sprintf "Unlocks: %d / %d" state.UnlockedIds.Count (List.length allNodes)) 760f 20f 18f Color.LightGray
         Raylib.DrawLine(0, TREE_Y, WIDTH, TREE_Y, Color.Gray)
 
         // left click button
@@ -180,21 +235,11 @@ let main _ =
         Raylib.DrawRectangleRec(btnRect, btnColor)
         Raylib.DrawRectangleLinesEx(btnRect, 4f, Color.White)
         let btnText = "CLICK!"
-        let btnTextW = Raylib.MeasureText(btnText, 60)
-        Raylib.DrawText(
-            btnText,
-            int btnRect.X + (int btnRect.Width - btnTextW) / 2,
-            int btnRect.Y + 160,
-            60,
-            Color.White)
+        let btnTextW = measureText uiFont.Font btnText 60f
+        drawText uiFont.Font btnText (btnRect.X + (btnRect.Width - btnTextW) / 2f) (btnRect.Y + 158f) 60f Color.White
         let perClick = sprintf "+%s per click" (formatNum state.ClickPower)
-        let perW = Raylib.MeasureText(perClick, 22)
-        Raylib.DrawText(
-            perClick,
-            int btnRect.X + (int btnRect.Width - perW) / 2,
-            int btnRect.Y + 240,
-            22,
-            Color.White)
+        let perW = measureText uiFont.Font perClick 22f
+        drawText uiFont.Font perClick (btnRect.X + (btnRect.Width - perW) / 2f) (btnRect.Y + 240f) 22f Color.White
 
         // tree panel background
         Raylib.DrawRectangle(TREE_X, TREE_Y, TREE_W, TREE_H, Color(28, 30, 42, 255))
@@ -240,22 +285,7 @@ let main _ =
                     elif canAfford then Color(255, 240, 160, 255)
                     else Color(40, 40, 55, 255)
                 Raylib.DrawCircleLinesV(Vector2(n.X, n.Y), NODE_R, ring)
-                let tw = Raylib.MeasureText(n.Name, 14)
-                Raylib.DrawText(
-                    n.Name,
-                    int n.X - tw / 2,
-                    int n.Y - 8,
-                    14,
-                    Color.Black)
-                if not unlocked then
-                    let cost = sprintf "%s pts" (formatNum n.Cost)
-                    let cw = Raylib.MeasureText(cost, 12)
-                    Raylib.DrawText(
-                        cost,
-                        int n.X - cw / 2,
-                        int n.Y + 10,
-                        12,
-                        Color.Black)
+                drawNodeLabel uiFont.Font state n
 
         Raylib.EndMode2D()
         Raylib.EndScissorMode()
@@ -283,9 +313,9 @@ let main _ =
             let fontSize = 14
             let maxW =
                 lines
-                |> List.map (fun l -> Raylib.MeasureText(l, fontSize))
+                |> List.map (fun l -> measureText uiFont.Font l (float32 fontSize))
                 |> List.max
-            let w = maxW + pad * 2
+            let w = int maxW + pad * 2 + 2
             let h = (List.length lines) * lineH + pad * 2
             let tx0 = int mouse.X + 18
             let ty0 = int mouse.Y + 18
@@ -295,19 +325,15 @@ let main _ =
             Raylib.DrawRectangleLines(tx, ty, w, h, Color.White)
             lines
             |> List.iteri (fun i l ->
-                Raylib.DrawText(l, tx + pad, ty + pad + i * lineH, fontSize, Color.White))
+                drawText uiFont.Font l (float32 (tx + pad)) (float32 (ty + pad + i * lineH)) (float32 fontSize) Color.White)
         | None -> ()
 
         // help
-        Raylib.DrawText(
-            "Drag (left/right) to pan  -  Scroll to zoom  -  Left-click node to buy",
-            TREE_X + 10,
-            HEIGHT - 22,
-            14,
-            Color.LightGray)
+        drawText uiFont.Font "Drag (left/right) to pan  -  Scroll to zoom  -  Left-click node to buy" (float32 (TREE_X + 10)) (float32 (HEIGHT - 23)) 14f Color.LightGray
 
         Raylib.EndDrawing ()
     
     Save.save state camTarget.X camTarget.Y camZoom
+    Render.unloadUiFont uiFont
     Raylib.CloseWindow ()
     0
