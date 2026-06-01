@@ -185,6 +185,7 @@ I used OpenAI Codex, an LLM-based coding assistant, while preparing the final su
 ### What I Used the LLM For
 
 - Reading the course project specification and my requirements document.
+- Making tree system and save system.
 - Drafting and revising this README so reviewers can run and evaluate the game from the repository alone.
 - Checking whether the implementation appears to satisfy the grading policy.
 - Reviewing whether generated build folders such as `bin/` and `obj/` should be ignored before deployment.
@@ -193,6 +194,7 @@ I used OpenAI Codex, an LLM-based coding assistant, while preparing the final su
 
 ### Prompts Used
 
+- "Create a tree system and save system in my game referring to the files above."
 - "Refer to the files above and write README.md. Also check whether my game violates any grading policy. For the LLM Usage section, write only a template. Also consider whether the `bin` and `obj` folders should be added to `.gitignore` when deploying."
 - "Rewrite it. Also fill in all the other items, not just the prompt."
 - "I did not write in the requirements that points are formatted as K, M, B, and T. Reflect this in README.md. There is also a bug where text on nodes sometimes goes outside the node and becomes hard to see. Fix that too. The font looks bad, so fix that as well."
